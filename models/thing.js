@@ -13,4 +13,4 @@ module.exports = mongoose.model('Thing', thingSchema); // export the model, whic
 // The two arguments passed to the model method are the name of the model, and the schema to use.
 
 // Compare this snippet from app.js:
-// const Thing = require('./models/thing'); // import the Thing model, which is exported from thing.js
+// const Thing = require('./models/thing'); // import the Thing model, which is exported from thing.jsgit 
