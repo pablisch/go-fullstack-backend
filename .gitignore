@@ -2,6 +2,9 @@
 
 bundle.js
 
+# mongo details
+config.js
+
 # compiled output
 /dist
 /tmp
