@@ -11,6 +11,6 @@ To get started with the project, you need to:
 3. Run `npm install` to install the dependencies
 4. Run `npm start` to start the server
    OR 
-5. Run `node server.js` to start the server
+5. Run `node server` to start the server
    OR 
-6. Run `nodemon server.js` to start the server with nodemon
+6. Run `nodemon server` to start the server with nodemon
