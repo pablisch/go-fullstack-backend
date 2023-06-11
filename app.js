@@ -1,12 +1,18 @@
 const express = require('express'); // import express module, to make our app an express server
 const mongoose = require('mongoose'); // import mongoose module, to connect to MongoDB database
 // mongoose is an ODM (Object Document Mapper) for MongoDB and Node.js. It allows us to interact with the MongoDB database in an object-oriented way. It provides a schema-based solution to model our application data with MongoDB. It includes built-in type casting, validation, query building, business logic hooks and more, out of the box.
+// const cors = require('cors'); // import cors module, to deal with the CORS policy
+const path = require('path'); // import path module, to deal with file paths
+
 const { password }  = require('./config'); // import the password property of the object exported from config.js
 // the password in config.js is the password for the user pablojoyce, which has read and write access to the database
 
-const Thing = require('./models/thing'); // import the Thing model, which is exported from thing.js
+const stuffRoutes = require('./routes/stuff'); // import the router object, which is exported from stuff.js
+const userRoutes = require('./routes/user'); // import the router object, which is exported from user.js
 
 const app = express(); // call the express function, which returns an object with a listen method
+
+// app.use(cors()); // call the use method, which adds a middleware function to the middleware stack, to deal with the CORS policy
 
 mongoose.connect(`mongodb+srv://pablojoyce:${password}@gofullstack.se9tvhr.mongodb.net/?retryWrites=true&w=majority`)
   .then(() => { // call the then method, which adds a callback function to the promise, to handle the success case
@@ -33,49 +39,9 @@ app.use((req, res, next) => { // call the use method, which adds a middleware fu
   next();
 });
 
-app.post('/api/stuff', (req, res, next) => { // call the post method, which adds a route to the app object, to handle POST requests to the /api/stuff endpoint
-  const thing = new Thing({ // create a new Thing object, using the Thing model
-    title: req.body.title, // set the title property of the Thing object to the title property of the request body
-    description: req.body.description, // set the description property of the Thing object to the description property of the request body
-    imageUrl: req.body.imageUrl, // set the imageUrl property of the Thing object to the imageUrl property of the request body
-    price: req.body.price, // set the price property of the Thing object to the price property of the request body
-    userId: req.body.userId, // set the userId property of the Thing object to the userId property of the request body
-  }); // end of const thing = new Thing({ ... })
-  thing.save() // call the save method, which saves the Thing object to the database
-    .then(() => res.status(201).json({ message: 'Thing saved successfully!' })) // call the then method, which adds a callback function to the promise, to handle the success case
-    .catch(error => res.status(400).json({ error: error })); // call the catch method, which adds a callback function to the promise, to handle the failure case
-}); // end of app.post('/api/stuff', (req, res, next) => { ... })  
+app.use('/images', express.static(path.join(__dirname, 'images'))); // call the use method, which adds a middleware function to the middleware stack, to serve the images in the images folder
 
-app.get('/api/stuff/:id', (req, res, next) => { // call the get method, which adds a route to the app object, to handle GET requests to the /api/stuff/:id endpoint
-  Thing.findOne({ _id: req.params.id }) // call the findOne method, which returns a promise, which resolves to the Thing object with the specified id
-    .then(thing => res.status(200).json(thing)) // call the then method, which adds a callback function to the promise, to handle the success case
-    .catch(error => res.status(404).json({ error: error })); // call the catch method, which adds a callback function to the promise, to handle the failure case
-}); // end of app.get('/api/stuff/:id', (req, res, next) => { ... })
-
-app.put('/api/stuff/:id', (req, res, next) => { // call the put method, which adds a route to the app object, to handle PUT requests to the /api/stuff/:id endpoint
-  const thing = new Thing({ // create a new Thing object, using the Thing model
-    _id: req.params.id, // set the _id property of the Thing object to the id property of the request parameters
-    title: req.body.title, // set the title property of the Thing object to the title property of the request body
-    description: req.body.description, // set the description property of the Thing object to the description property of the request body
-    imageUrl: req.body.imageUrl, // set the imageUrl property of the Thing object to the imageUrl property of the request body
-    price: req.body.price, // set the price property of the Thing object to the price property of the request body
-    userId: req.body.userId, // set the userId property of the Thing object to the userId property of the request body
-  }); // end of const thing = new Thing({ ... })
-  Thing.updateOne({ _id: req.params.id }, thing) // call the updateOne method, which returns a promise, which resolves to the Thing object with the specified id
-    .then(() => res.status(201).json({ message: 'Thing updated successfully!' })) // call the then method, which adds a callback function to the promise, to handle the success case
-    .catch(error => res.status(400).json({ error: error })); // call the catch method, which adds a callback function to the promise, to handle the failure case
-}); // end of app.put('/api/stuff/:id', (req, res, next) => { ... })
-
-app.delete('/api/stuff/:id', (req, res, next) => { // call the delete method, which adds a route to the app object, to handle DELETE requests to the /api/stuff/:id endpoint
-  Thing.deleteOne({ _id: req.params.id }) // call the deleteOne method, which returns a promise, which resolves to the Thing object with the specified id
-    .then(() => res.status(200).json({ message: 'Deleted!' })) // call the then method, which adds a callback function to the promise, to handle the success case
-    .catch(error => res.status(400).json({ error: error })); // call the catch method, which adds a callback function to the promise, to handle the failure case
-}); // end of app.delete('/api/stuff/:id', (req, res, next) => { ... })
-
-app.get('/api/stuff', (req, res, next) => { // call the get method, which adds a route to the app object, to handle GET requests to the /api/stuff endpoint
-  Thing.find() // call the find method, which returns a promise, which resolves to an array of all the Thing objects in the database
-    .then(things => res.status(200).json(things)) // call the then method, which adds a callback function to the promise, to handle the success case
-    .catch(error => res.status(400).json({ error: error })); // call the catch method, which adds a callback function to the promise, to handle the failure case
-}); // end of app.get('/api/stuff', (req, res, next) => { ... })
+app.use('/api/stuff', stuffRoutes); // call the use method, which adds a middleware function to the middleware stack, to handle requests to the /api/stuff endpoint
+app.use('/api/auth', userRoutes); // call the use method, which adds a middleware function to the middleware stack, to handle requests to the /api/auth endpoint
 
 module.exports = app; // export the app object, so it can be used by other code, e.g. our tests
